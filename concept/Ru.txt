@@ -1,0 +1,67 @@
+================================
+
+	     Ru
+
+================================
+
+Action Puzzle
+
+un mélange de shoot'em up et de puzzule.
+
+on court tout droit on doit esquiver les trucs
+détruire les trucs, ramasser des upgrades.
+
+système simple à 6 boutons + tir
+ ___________
+|___|___|___|
+|_4_|_5_|_6_|
+|_1_|_2_|_3_|
+
+
+The Infinite.
+
+3 type de tir : 
+
+primary
+secondary
+auxiliaire
+
+un peu utiliser chaque type de tir pour une position.
+tir primaire : 1-2-3 pour gauche-milieu-droite
+idem pour le tir secondaire : 4-5-6
+et idem pour le tir auxiliaire 7-8-9
+
+chaque tir possède des munitions, qui se recharge dans le temps.
+les tirs supérieurs demandes plus de temps de recharge mais son plus destructeur
+chaque ennemi ou objet détruit augmente la vitesse du vaisseau.
+à partir d'une certaine vitesse, certain objet son détruit automatiquement par le bouclier.
+mais créer une perte de vitesse.
+il y a plusieurs jauge, une de vitesse avec le (ou les) tic de repère de destruction
+et les munitions des tirs prim/sec/aux.
+les objets ont plusieurs frames d'arrivée. 
+lointain (non destructible) (2)
+lointain destructible (3)
+proche (2)
+contact (1)
+
+la vitesse des tirs compte également, certains tirs plus vite et d'autre moins vite.
+
+4 système à parcourir en 4 missions (plus une bonus)
+certain objet rapporte plus de points.
+on achète des améliorations avec ces points. débloquer arme secondaire
+débloquer arme auxiliaire
+récupérer différents auxiliaire
+améliorer bouclier
+améliorer munition
+possibilité de s'éjecter pour être rappatrier à la base et utiliser ses sous, mais ne valide pas la mission.
+en cas de mort (rogue like) on redémarre à zéro.
+
+aux. missile qui reste plusieurs frames dans un endroit
+lazer instant qui clean une wave
+boost de vitesse instant.
+tirs diagonale.
+
+2 Boss (+1 caché) dans la mission caché
+
+pour finir le jeu (fin facile)
+fin difficile
