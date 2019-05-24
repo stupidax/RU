@@ -80,6 +80,9 @@ hitBurn = {}
   hitBurn.img = love.graphics.newImage("images/hit.png")
   hitBurn.quad = quadCreation(hitBurn.img,20,20)
 
+--provisoire
+hitbox = true
+
 end
 
 function love.draw()
@@ -150,7 +153,7 @@ else
   drawPosition(allRightShot)
   drawMobPosition(allMob)
   
-  love.graphics.print("push space to see mob hitbox",0,0,0,0.1,0.1)
+  love.graphics.print("push space to activate/desactivate mob hitbox",0,0,0,0.1,0.1)
   
 end
 
@@ -382,10 +385,12 @@ function love.keypressed(key)
   end
   
   --hitbox debugmode
-  if key == "space" and hitbox == false then
-    hitbox = true
-  else
-    hitbox = false
+  if key == "space" then
+    if hitbox == false then
+      hitbox = true
+    else
+      hitbox = false
+    end
   end
 
   
