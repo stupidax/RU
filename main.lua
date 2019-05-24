@@ -43,15 +43,17 @@ leftReserve = 5
 rightReserve = 5
 leftReserveTimer = 0
 rightReserveTimer = 0
-reload = 500
+reload = 2
 mobCreationTimer = 0
-menace = 2
+menace = 5
+menaceUp = 0
 aggro = 2
 randMobDirection = 2
 randMobTimer = 1
 mobDirectionTimer = 5
 mobCreation = false
 mobDirectionChange = false
+score = 0
 
 --init graph
 bg = {}
@@ -146,7 +148,11 @@ else
   
   --draw Explosion
   drawExplosion(allExplosion)
-
+  
+  --score
+  love.graphics.print(score,0,0,0,0.1,0.1)
+  
+--[[
   --test 
   drawPosition(allLeftShot)
   drawPosition(allCenterShot)
@@ -154,7 +160,7 @@ else
   drawMobPosition(allMob)
   
   love.graphics.print("push space to activate/desactivate mob hitbox",0,0,0,0.1,0.1)
-  
+  ]]--
 end
 
 function love.update(dt)
@@ -245,17 +251,22 @@ function love.update(dt)
     rightReserveTimer = 0
   end
 
-  --[[--reload
+  --reload
   if speed > 10 then
-    reload = 2
+    reload = 4
   elseif speed > 20 then
-    reload = 5
+    reload = 7
   elseif speed > 40 then
     reload = 10
   else
-    reload = 1
+    reload = 2
   end
-  ]]
+  
+  --menace
+  if menaceUp > 5 then
+    menace = menace + 1
+    menaceUp = 0
+  end
   
   --timer graphic for board
   if leftShot == true then
@@ -508,36 +519,30 @@ function drawShot(allShot)
 end
 
 function shotHit(allShot, allMob)
-  if #allShot > 1 then
-    if #allMob > 1 then
+  if #allShot > 0 then
+    if #allMob > 0 then
       for _, shot in pairs(allShot) do
         for _, mob in pairs(allMob) do
           if mob.frameActive == 1 or mob.frameActive == 2 or mob.frameActive == 3 then
-            if (shot.x > mob.x-5 and shot.x < mob.x+5) and (shot.y > mob.y-5 and shot.y < mob.y+5) then
+            if (shot.x > mob.x-1*mob.scale and shot.x < mob.x+1*mob.scale) and (shot.y > mob.y-1*mob.scale and shot.y < mob.y+1*mob.scale) then
               shot.hit = true
               mob.hit = true
-              print(mob.frameActive .. " sx:" .. shot.x .. " sy:" .. shot.y .. " mx:" .. mob.x .. " my:" .. mob.y .. " ms:" .. mob.scale)
             end
           elseif mob.frameActive == 4 or mob.frameActive == 5 or mob.frameActive == 6 then
-            if (shot.x > mob.x-10 and shot.x < mob.x+10) and (shot.y > mob.y-10 and shot.y < mob.y+10) then
+            if (shot.x > mob.x-2*mob.scale and shot.x < mob.x+2*mob.scale) and (shot.y > mob.y-2*mob.scale and shot.y < mob.y+2*mob.scale) then
               shot.hit = true
               mob.hit = true
-              print(mob.frameActive .. " sx:" .. shot.x .. " sy:" .. shot.y .. " mx:" .. mob.x .. " my:" .. mob.y .. " ms:" .. mob.scale)
             end
           elseif mob.frameActive == 7 or mob.frameActive == 8 or mob.frameActive == 9 then
-            if (shot.x > mob.x-15 and shot.x < mob.x+15) and (shot.y > mob.y-15 and shot.y < mob.y+15) then
+            if (shot.x > mob.x-5*mob.scale and shot.x < mob.x+5*mob.scale) and (shot.y > mob.y-5*mob.scale and shot.y < mob.y+5*mob.scale) then
               shot.hit = true
               mob.hit = true
-              print(mob.frameActive .. " sx:" .. shot.x .. " sy:" .. shot.y .. " mx:" .. mob.x .. " my:" .. mob.y .. " ms:" .. mob.scale)
             end
           elseif mob.frameActive == 10 or mob.frameActive == 11 or mob.frameActive == 12 then
-            if (shot.x > mob.x-20 and shot.x < mob.x+20) and (shot.y > mob.y-20 and shot.y < mob.y+20) then
+            if (shot.x > mob.x-10*mob.scale and shot.x < mob.x+10*mob.scale) and (shot.y > mob.y-5*mob.scale and shot.y < mob.y+5*mob.scale) then
               shot.hit = true
               mob.hit = true
-              print(mob.frameActive .. " sx:" .. shot.x .. " sy:" .. shot.y .. " mx:" .. mob.x .. " my:" .. mob.y .. " ms:" .. mob.scale)
             end
-          else 
-            print("else")
           end
         end
       end
@@ -628,12 +633,12 @@ function moveMob(allMob, deltaT)
     elseif mob.distance > 5 and mob.distance <6 then
       if mob.direction == 1 then
         mob.y = mob.y + deltaT * speed
-        mob.x = mob.x - deltaT * speed
+        mob.x = mob.x - deltaT * speed /2
       elseif mob.direction == 2 then
         mob.y = mob.y + deltaT * speed
       elseif mob.direction == 3 then
         mob.y = mob.y + deltaT * speed
-        mob.x = mob.x + deltaT * speed
+        mob.x = mob.x + deltaT * speed /2
       end
     elseif mob.distance > 6 then
       if mob.direction == 1 then
@@ -652,7 +657,7 @@ function moveMob(allMob, deltaT)
 end
 function mobDistanceUpdate(allMob, deltaT)
     for _, mob in pairs(allMob) do
-    mob.distance = mob.distance + math.min(deltaT * speed, 10)
+    mob.distance = mob.distance + math.min(deltaT * speed/2, 5)
   end
 end
 function mobDestruction(allMob)
@@ -662,6 +667,8 @@ function mobDestruction(allMob)
         table.remove(allMob, _)
         speed = speed + 1
         reload = reload + 1
+        score = score + 5
+        menaceUp = menaceUp + 1
       elseif mob.y > 40  or mob.x > 50 or mob.x < -20 or mob.y < -10 then
         table.remove(allMob, _)
         if speed > 1 then
@@ -759,7 +766,7 @@ end
 function drawHit(allHit)
   if #allHit > 0 then
     for _, hit in pairs(allHit) do
-      love.graphics.draw(hitBurn.img,hitBurn.quad[hit.frameActive],x,y,0,scale)
+      love.graphics.draw(hitBurn.img,hitBurn.quad[hit.frameActive],hit.x-10*hit.scale,hit.y-10*hit.scale,0,hit.scale)
     end
   end
 end
@@ -777,7 +784,7 @@ end
 function drawExplosion(allExplosion)
   if #allExplosion > 0 then
     for _, explosion in pairs(allExplosion) do
-      love.graphics.draw(explode.img,explode.quad[explosion.frameActive],x,y,0,scale)
+      love.graphics.draw(explode.img,explode.quad[explosion.frameActive],explosion.x-10*explosion.scale,explosion.y-10*explosion.scale,0,explosion.scale)
     end
   end
 end
@@ -808,13 +815,13 @@ function drawMobPosition(allMob)
     if hitbox == true then
     love.graphics.setColor(1,0,0,0.5)
       if mob.frameActive == 1 or mob.frameActive == 2 or mob.frameActive == 3 then
-        love.graphics.rectangle("fill",mob.x-10*mob.scale,mob.y-10*mob.scale,10,10)
+        love.graphics.rectangle("fill",mob.x-10*mob.scale,mob.y-10*mob.scale,10*mob.scale,10*mob.scale)
       elseif mob.frameActive == 4 or mob.frameActive == 5 or mob.frameActive == 6 then
-        love.graphics.rectangle("fill",mob.x-10*mob.scale,mob.y-10*mob.scale,20,20)
+        love.graphics.rectangle("fill",mob.x-10*mob.scale,mob.y-10*mob.scale,20*mob.scale,20*mob.scale)
       elseif mob.frameActive == 7 or mob.frameActive == 8 or mob.frameActive == 9 then
-        love.graphics.rectangle("fill",mob.x-10*mob.scale,mob.y-10*mob.scale,30,30)
+        love.graphics.rectangle("fill",mob.x-10*mob.scale,mob.y-10*mob.scale,30*mob.scale,30*mob.scale)
       elseif mob.frameActive == 10 or mob.frameActive == 11 or mob.frameActive == 12 then
-        love.graphics.rectangle("fill",mob.x-10*mob.scale,mob.y-10*mob.scale,40,40)
+        love.graphics.rectangle("fill",mob.x-10*mob.scale,mob.y-10*mob.scale,40*mob.scale,40*mob.scale)
       end
     love.graphics.setColor(1,1,1)
     end
