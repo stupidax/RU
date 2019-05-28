@@ -61,13 +61,14 @@ mobCreation = false
 mobDirectionChange = false
 score = 0
 randMob1 = 0
+randMob2 = 0
 randMobPower = 0
 aimTimer = 0
 
 --init graph
 bg = {}
-  bg["bg1"] = love.graphics.newImage("images/bg1.png")
-  bg["bg2"] = love.graphics.newImage("images/bg2.png")
+  bg[1] = love.graphics.newImage("images/bgB1.png")
+  bg[2] = love.graphics.newImage("images/bgB2.png")
 
 board = {}
   board[1] = love.graphics.newImage("images/board.png")
@@ -112,9 +113,9 @@ function love.draw()
   
   --bg
   if speed < 40 then
-  love.graphics.draw(bg.bg1)
+  love.graphics.draw(bg[1])
 else
-  love.graphics.draw(bg.bg2)
+  love.graphics.draw(bg[2])
   end
   
   --star
@@ -346,9 +347,10 @@ function love.update(dt)
 
   --Timer Mob creation
   mobCreationTimer = mobCreationTimer + dt * menace
-  if mobCreationTimer > 10 and mobCreation == false then
+  if mobCreationTimer > 5 and mobCreation == false then
     mobCreationTimer = mobCreationTimer - 10
     randMob1 = math.random(5,25)
+    randMob2 = math.random(2,18)
     randMobTimerDirection = math.random(1,5)
     randMobPower = math.random(1,10)
     if randMobPower < 4 then
@@ -360,13 +362,13 @@ function love.update(dt)
         asteroid = 2
       end
       mobCreation = true
-      table.insert(allMob, Mob:new({x=randMob1,y=5,speed=1,life=1,direction=asteroid,frameActive=asteroid,scale=0.1,directionTimer=0,distance=0,directionChange=false,hit=false,xHitBox={1,2,4,6}, yHitBox={1,2,4,6},power=0}))
+      table.insert(allMob, Mob:new({x=randMob1,y=randMob2,speed=3,life=1,direction=asteroid,frameActive=asteroid,scale=0.1,directionTimer=0,distance=0,directionChange=false,hit=false,xHitBox={1,1,1,2}, yHitBox={1,1,1,2},power=0}))
       mobCreation = false
     elseif randMobPower > 4 and randMobPower < 8 then
-      table.insert(allMob, Mob:new({x=randMob1,y=5,speed=1,life=2,direction=randMobDirection,frameActive=randMobDirection,scale=0.1,directionTimer=0,distance=0,directionChange=true,hit=false,xHitBox={1,1,2,3}, yHitBox={1,1,2,3},power=1}))
+      table.insert(allMob, Mob:new({x=randMob1,y=randMob2,speed=2,life=2,direction=randMobDirection,frameActive=randMobDirection,scale=0.1,directionTimer=0,distance=0,directionChange=true,hit=false,xHitBox={1,1,2,3}, yHitBox={1,1,2,3},power=1}))
       mobCreation = false
     elseif randMobPower > 8 then
-      table.insert(allMob, Mob:new({x=randMob1,y=5,speed=1,life=3,direction=randMobDirection,frameActive=randMobDirection,scale=0.1,directionTimer=0,distance=0,directionChange=true,hit=false,xHitBox={1,2,5,10},yHitBox={1,2,5,5},power=2}))
+      table.insert(allMob, Mob:new({x=randMob1,y=randMob2,speed=1,life=3,direction=randMobDirection,frameActive=randMobDirection,scale=0.1,directionTimer=0,distance=0,directionChange=true,hit=false,xHitBox={1,2,5,8},yHitBox={1,2,5,5},power=2}))
       mobCreation = false
     end
   end
@@ -433,7 +435,7 @@ function love.update(dt)
     aimPosDown = 0
   end
   if love.keyboard.isDown("left") then
-    aimLeft = -10
+    aimLeft = -11
     aimPosLeft = 1
   else
     aimLeft = 0
@@ -486,7 +488,7 @@ function love.keypressed(key)
   end]]--
   
   --primary shot pos 1 left
-  if key == "kp1" then
+  if key == "t" then
     print(aimPos)
     if aimPos == 11 then
       if leftReserve > 0 then
@@ -694,9 +696,61 @@ end
 function moveShot(allShot,deltaT)
     for _, shot in pairs(allShot) do
       if shot.pos == 11 then
+        shot.x = shot.x + 2 * deltaT
+        shot.y = shot.y - 20 * deltaT
+        shot.scale = math.max((shot.y-2)/13,.1)
+      end
+      if shot.pos == 21 then
         shot.x = shot.x + 3 * deltaT
-        shot.y = shot.y - 12 * deltaT
-        shot.scale = math.max((shot.y-5)/10,.1)
+        shot.y = shot.y - 10 * deltaT
+        shot.scale = math.max((shot.y-6)/9,.1)
+      end
+      if shot.pos == 31 then
+        shot.x = shot.x + 4 * deltaT
+        shot.y = shot.y - 5 * deltaT
+        shot.scale = math.max((shot.y-11)/4,.1)
+      end
+      if shot.pos == 12 then
+        if shot.x > 15 then
+          shot.x = shot.x - 16 * deltaT
+        else
+          shot.x = shot.x + 16 * deltaT
+        end
+        shot.y = shot.y - 20 * deltaT
+        shot.scale = math.max((shot.y-2)/13,.1)
+      end
+      if shot.pos == 22 then
+        if shot.x > 15 then
+          shot.x = shot.x - 13 * deltaT
+        else
+          shot.x = shot.x + 13 * deltaT
+        end
+        shot.y = shot.y - 10 * deltaT
+        shot.scale = math.max((shot.y-6)/9,.1)
+      end
+      if shot.pos == 32 then
+        if shot.x > 15 then
+          shot.x = shot.x - 15 * deltaT
+        else
+          shot.x = shot.x + 15 * deltaT
+        end
+        shot.y = shot.y - 5 * deltaT
+        shot.scale = math.max((shot.y-11)/4,.1)
+      end
+      if shot.pos == 13 then
+        shot.x = shot.x - 2 * deltaT
+        shot.y = shot.y - 20 * deltaT
+        shot.scale = math.max((shot.y-2)/13,.1)
+      end
+      if shot.pos == 23 then
+        shot.x = shot.x - 3 * deltaT
+        shot.y = shot.y - 10 * deltaT
+        shot.scale = math.max((shot.y-6)/9,.1)
+      end
+      if shot.pos == 33 then
+        shot.x = shot.x - 4 * deltaT
+        shot.y = shot.y - 5 * deltaT
+        shot.scale = math.max((shot.y-11)/4,.1)
       end
     end
 end
@@ -747,16 +801,52 @@ function shotDestruction(allShot)
         table.insert(allHit,Hit:new({x=shot.x,y=shot.y,scale=shot.scale,frameActive =1, hitTimer = 0}))
         table.remove(allShot, _)
       else
-        if shot.x > 15 then
-          if math.ceil(shot.x) == 15  or math.floor(shot.y) == 6 then
+        if shot.pos == 11 then
+          if math.floor(shot.y) == 2 then
             table.remove(allShot, _)
           end
-        else
-          if math.floor(shot.x) == 15  or math.floor(shot.y) == 6 then
+        end
+        if shot.pos == 21 then
+          if math.floor(shot.y) == 6 then
+            table.remove(allShot, _)
+          end
+        end
+        if shot.pos == 31 then
+          if math.floor(shot.y) == 11 then
+            table.remove(allShot, _)
+          end
+        end
+        if shot.pos == 12 then
+          if math.floor(shot.y) == 2 then
+            table.remove(allShot, _)
+          end
+        end
+        if shot.pos == 22 then
+          if math.floor(shot.y) == 6 then
+            table.remove(allShot, _)
+          end
+        end
+        if shot.pos == 32 then
+          if math.floor(shot.y) == 11 then
             table.remove(allShot, _)
           end
         end
       end
+        if shot.pos == 13 then
+          if math.floor(shot.y) == 2 then
+            table.remove(allShot, _)
+          end
+        end
+        if shot.pos == 23 then
+          if math.floor(shot.y) == 6 then
+            table.remove(allShot, _)
+          end
+        end
+        if shot.pos == 33 then
+          if math.floor(shot.y) == 11 then
+            table.remove(allShot, _)
+          end
+        end
     end
 end
 
@@ -804,45 +894,45 @@ function moveMob(allMob, deltaT)
   for _, mob in pairs(allMob) do
     if mob.distance < 3 then
       if mob.direction == 1 then
-        mob.y = mob.y + deltaT * speed
-        mob.x = mob.x - deltaT * speed /4
+        mob.y = mob.y + deltaT * mob.speed
+        mob.x = mob.x - deltaT * mob.speed
       elseif mob.direction == 2 then
-        mob.y = mob.y + deltaT * speed /4
+        mob.y = mob.y + deltaT * mob.speed
       elseif mob.direction == 3 then
-        mob.y = mob.y + deltaT * speed /4
-        mob.x = mob.x + deltaT * speed
+        mob.y = mob.y + deltaT * mob.speed
+        mob.x = mob.x + deltaT * mob.speed
       end
     elseif mob.distance > 3 and mob.distance < 4 then
       if mob.direction == 1 then
-        mob.y = mob.y + deltaT * speed
-        mob.x = mob.x - deltaT * speed
+        mob.y = mob.y + deltaT * (1+mob.speed)
+        mob.x = mob.x - deltaT * (1+mob.speed)
       elseif mob.direction == 2 then
-        mob.y = mob.y + deltaT * speed
+        mob.y = mob.y + deltaT * (1+mob.speed)
       elseif mob.direction == 3 then
-        mob.y = mob.y + deltaT * speed
-        mob.x = mob.x + deltaT * speed
+        mob.y = mob.y + deltaT * (1+mob.speed)
+        mob.x = mob.x + deltaT * (1+mob.speed)
       end
     elseif mob.distance > 4 and mob.distance < 6 then
       if mob.direction == 1 then
-        mob.y = mob.y + deltaT * speed
-        mob.x = mob.x - deltaT * speed *2
+        mob.y = mob.y + deltaT * (2+mob.speed)
+        mob.x = mob.x - deltaT * (3+mob.speed)
       elseif mob.direction == 2 then
-        mob.y = mob.y + deltaT * speed
+        mob.y = mob.y + deltaT * (2+mob.speed)
       elseif mob.direction == 3 then
-        mob.y = mob.y + deltaT * speed
-        mob.x = mob.x + deltaT * speed *2
+        mob.y = mob.y + deltaT * (2+mob.speed)
+        mob.x = mob.x + deltaT * (3+mob.speed)
       end
     elseif mob.distance > 6 then
       if mob.direction == 1 then
         mob.directionChange = false
-        mob.y = mob.y - deltaT * speed
-        mob.x = mob.x - deltaT * speed
+        mob.y = mob.y - deltaT * (5+mob.speed)
+        mob.x = mob.x - deltaT * (5+mob.speed)
       elseif mob.direction == 2 then
-        mob.y = mob.y - deltaT * speed
+        mob.y = mob.y - deltaT * (5+mob.speed)
       elseif mob.direction == 3 then
         mob.direction = false
-        mob.y = mob.y - deltaT * speed
-        mob.x = mob.x + deltaT * speed
+        mob.y = mob.y - deltaT * (5+mob.speed)
+        mob.x = mob.x + deltaT * (5+mob.speed)
       end
     end
   end
