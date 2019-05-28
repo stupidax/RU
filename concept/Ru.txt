@@ -4,6 +4,33 @@
 
 ================================
 
+chaque système possède des points de contrôle.
+A chaque point de contrôle on peut réparer et améliorer le vaisseau.
+on peut retourner à la base principale également pour changer de système.
+
+il y a 3 premier système et un quatrième accessible une fois les derniers points de contrôles atteinds sur chaque système.
+(plus un système caché).
+
+chaque système possède 3 point de contrôle
+sauf le 4 qui en possède 4.
+(le système caché n'en possède que 1)
+
+il y a possibilité de lancer un saut pour revenir au point de contrôle (pour ne pas mourrir).
+mais le saut n'est pas instantanné.
+
+gestion du bouclier sur plusieurs "couches"
+gestion des armes principales et seconadire + auxiliaires.
+
+voir amélioration en bas.
+
+historique des morts en mission pour chaque partie
+(3 slots de parties)
+monument en mémoire des pilotes.
+vue du vaisseau etc.
+
+
+
+
 Action Puzzle
 
 un mélange de shoot'em up et de puzzule.

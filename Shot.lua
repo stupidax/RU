@@ -1,4 +1,4 @@
-local Shot  = {x = 0, y = 0, speed = 1, xScale = 1, yScale = 1, hit = false}
+local Shot  = {x = 0, y = 0, speed = 1, xScale = 1, yScale = 1, hit = false, pos = 22}
 local id = 0
 require("main")
 

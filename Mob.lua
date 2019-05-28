@@ -1,4 +1,3 @@
---               1      2       3           4           5         6               7               8                     9                   10                  11     
 local Mob  = {x = 0, y = 0, speed = 1, life = 3, direction = 2, frameActive = 2, scale = 0.1, directionTimer = 0, distance = 0, directionChange = true, mobHit = false}
 local id = 0
 require("main")
