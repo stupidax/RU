@@ -4,6 +4,21 @@
 
 ================================
 
+Tâches : 
+========
+
+* Intro
+* Menu
+* Debriefing
+
+
+
+
+
+
+
+
+
 chaque système possède des points de contrôle.
 A chaque point de contrôle on peut réparer et améliorer le vaisseau.
 on peut retourner à la base principale également pour changer de système.

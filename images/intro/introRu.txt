@@ -1,0 +1,68 @@
+================================
+
+	     Ru
+
+================================
+
+Intro : 
+
+fond noir = *
+** = fondu au noir ou du noir
+
+
+**
+//vue planete
+**
+//vue ville
+-ascenceur qui monte
+**
+//vue ascenceur intérieur
+//ouverture porte sur couloir
+**
+//vue porte appartement
+//ouverture porte
+//allumage lumière
+**
+//vue canapé
+//buit message
+//affichage communicateur
+//lecture mes
+
+.>new mes(7)
+(rent not paid)(5!)--f:c.chahi@city.aw
+(rent not paid)(4)--f:c.chahi@city.aw
+(!)(no subject)--f:kl.def@lunar10.s5
+(rent not paid)(3)--f:c.chahi@city.aw
+(a gift for you)--f:s.pam@add.mw
+(rent not paid)(2)--f:c.chahi@city.aw
+.open.
+..
+..
+
+
+
+.f:kl.def@lunar10.s5
+.Hey, you remember me?
+.Me, I didn't forget you.
+.And what you've done for me.
+
+.I had to paid my debt.
+.So here we are, I find you
+.a ship, a proceptycide.
+
+.a bit old, but it has a
+.W.H.G for space-jump
+.and you can upgrad it
+
+.Central can paid a lot
+.for missions in sector 5
+.Maybe we'll met again there
+
+.if you survive spacefights.
+.remote code:-58912141IIMBD-
+.hangar08.
+
+
+
+
+

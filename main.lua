@@ -2,6 +2,7 @@ io.stdout:setvbuf('no')
 love.graphics.setDefaultFilter("nearest")
 
 love.window.setMode(300,200)
+love.window.setTitle("Proceptycide")
 
 function love.load(arg)
 if arg[#arg] == "-debug" then require("mobdebug").start() end
@@ -12,9 +13,19 @@ Shot = require("Shot")
 Mob = require("Mob")
 Hit = require("Hit")
 Explosion = require("Explosion")
+menu = require("menu")
+require("intro")
 
 -- RNG
 rng = love.math.newRandomGenerator()
+
+--font for game
+  font = love.graphics.newImageFont("images/font.png",
+    " abcdefghijklmnopqrstuvwxyz"..
+    "ABCDEFGHIJKLMNOPQRSTUVWXYZ"..
+    "0123456789"..
+    ".\'?!,@")
+  love.graphics.setFont(font)
 
 
 --init var
@@ -28,10 +39,13 @@ allRightMidShot = {}
 allLeftBotShot = {}
 allCenterBotShot = {}
 allRightBotShot = {}
+allSet = {}
 allMob = {}
 allHit = {}
 allExplosion = {}
 speed = 1
+life = 1
+lifeMax = 1
 timer = 0
 timer2 = 0
 limitx = 0
@@ -49,7 +63,7 @@ leftReserve = 5
 rightReserve = 5
 leftReserveTimer = 0
 rightReserveTimer = 0
-reload = 2
+reload = 1
 mobCreationTimer = 0
 menace = 1
 menaceUp = 0
@@ -64,61 +78,183 @@ randMob1 = 0
 randMob2 = 0
 randMobPower = 0
 aimTimer = 0
+rtext = 0
+redUp = false
+alert = false
+lightUp = false
+ltext = 0
+text = false
+timerText = 0
+level = 0
+fade = 0.3
+engine = false
+gameState = "intro"
+setUp = false
+cursorTimer = 0
+menuOn = false
+
+set1 = {}
+  set1.x = 0
+  set1.y = -20
+  set1.move1 = false
+  set1.move2 = true
+  set1.yGo1 = 0
+  set1.yGo2 = -20
+  set1.dir = "down"
+
+set2 = {}
+  set2.x = 0
+  set2.y = 20
+  set2.move1 = false
+  set2.move2 = true
+  set2.yGo1 = 0
+  set2.yGo2 = 20
+  set2.dir = "up"
+
+
+set3 = {}
+  set3.x = 0
+  set3.y = -20
+  set3.move1 = false
+  set3.move2 = true
+  set3.yGo1 = 0
+  set3.yGo2 = -20
+  set3.dir = "down"
+
+allSet = {}
+  table.insert(allSet,set1)
+  table.insert(allSet,set2)
+  table.insert(allSet,set3)
+
+cursor = {}
+  cursor.x = {7,10,14,18,24}
+  cursor.y = {6,12,12,12,7}
+  cursor.text = {"Ship Shield","Ship Speed","Missile","Shot Power","Ship Resistance"}
 
 --init graph
 bg = {}
-  bg[1] = love.graphics.newImage("images/bgB1.png")
-  bg[2] = love.graphics.newImage("images/bgB2.png")
+  bg[11] = love.graphics.newImage("images/level/bgA1.png")
+  bg[12] = love.graphics.newImage("images/level/bgA2.png")
+  bg[21] = love.graphics.newImage("images/level/bgB1.png")
+  bg[22] = love.graphics.newImage("images/level/bgB2.png")
+  bg[1] = love.graphics.newImage("images/level/bgC1.png")
+  bg[2] = love.graphics.newImage("images/level/bgC2.png")
+  bg[3] = love.graphics.newImage("images/level/bgC3.png")
+  bg[31] = love.graphics.newImage("images/level/bgD1.png")
+  bg[32] = love.graphics.newImage("images/level/bgD2.png")
+  bg[41] = love.graphics.newImage("images/level/bgE1.png")
+  bg[42] = love.graphics.newImage("images/level/bgE2.png")
 
+  set1.img = love.graphics.newImage("images/set/set1.png")
+  set2.img = love.graphics.newImage("images/set/set2.png")
+  set3.img = love.graphics.newImage("images/set/set3.png")
+  
+obj1 = {}
+  obj1[1] = love.graphics.newImage("images/level/bgB3.png")
+  obj1[2] = love.graphics.newImage("images/level/bgB4.png")
+  obj1.x = 15
+  obj1.y = 5
+  obj1[3] = 15
+  obj1[4] = 5
+  obj1.scale = 0.1
+  
 board = {}
-  board[1] = love.graphics.newImage("images/board.png")
-  board[2] = love.graphics.newImage("images/boardLeft.png")
-  board[3] = love.graphics.newImage("images/boardRight.png")
-  board[4] = love.graphics.newImage("images/boardCenter.png")
+  board[1] = love.graphics.newImage("images/board/board.png")
+  board[2] = love.graphics.newImage("images/board/boardLeft.png")
+  board[3] = love.graphics.newImage("images/board/boardRight.png")
+  board[4] = love.graphics.newImage("images/board/boardCenter.png")
 
 shield = {}
-  shield.img = love.graphics.newImage("images/shield.png")
+  shield.img = love.graphics.newImage("images/afix/shield.png")
   shield.quad = quadCreation(shield.img)
 
 ship = {}
-  ship.img0 = love.graphics.newImage("images/Mob0.png")
+  ship.img0 = love.graphics.newImage("images/mob/Mob0.png")
   ship.quad0 = quadCreation(ship.img0,20,20)
-  ship.img1 = love.graphics.newImage("images/Mob1.png")
+  ship.img1 = love.graphics.newImage("images/mob/Mob1.png")
   ship.quad1 = quadCreation(ship.img1,20,20)
-  ship.img2 = love.graphics.newImage("images/Mob2.png")
+  ship.img2 = love.graphics.newImage("images/mob/Mob2.png")
   ship.quad2 = quadCreation(ship.img2,20,20)
 
-
 explode = {}
-  explode.img = love.graphics.newImage("images/explode.png")
+  explode.img = love.graphics.newImage("images/afix/explode.png")
   explode.quad = quadCreation(explode.img,20,20)
   
 hitBurn = {}
-  hitBurn.img = love.graphics.newImage("images/hit.png")
+  hitBurn.img = love.graphics.newImage("images/afix/hit.png")
   hitBurn.quad = quadCreation(hitBurn.img,20,20)
 
 aim = {}
-  aim.img = love.graphics.newImage("images/aim.png")
+  aim.img = love.graphics.newImage("images/afix/aim.png")
   aim.quad = quadCreation(aim.img,5,5)
   aim.frameActive = 1
+  
+lifeMaxImg = {}
+  lifeMaxImg.img = love.graphics.newImage("images/board/lifeMax.png")
+  lifeMaxImg.quad = quadCreation(lifeMaxImg.img)
+  lifeMaxImg.frameActive = lifeMax
+
+setShield = {}
+  setShield.img = love.graphics.newImage("images/set/shield.png")
+  setShield.quad = quadCreation(setShield.img)
+  setShield.frameActive = 1
+
+setShot = {}
+  setShot.img = love.graphics.newImage("images/set/shot.png")
+  setShot.quad = quadCreation(setShot.img)
+  setShot.frameActive = 1
+
+setSpeed = {}
+  setSpeed.img = love.graphics.newImage("images/set/speed.png")
+  setSpeed.quad = quadCreation(setSpeed.img)
+  setSpeed.frameActive = 1
+
+setMissile = {}
+  setMissile.img = love.graphics.newImage("images/set/missile.png")
+  setMissile.quad = quadCreation(setMissile.img)
+  setMissile.frameActive = 1
+
+setLifeMax = {}
+  setLifeMax.img = love.graphics.newImage("images/set/lifeMax.png")
+  setLifeMax.quad = quadCreation(setLifeMax.img)
+  setLifeMax.frameActive = 1
+
+setCursor = {}
+  setCursor.img = love.graphics.newImage("images/afix/cursor.png")
+  setCursor.quad = quadCreation(setCursor.img,5,5)
+  setCursor.frameActive = 1
+  setCursor.pos = 1
 
 --provisoire
-hitbox = true
+hitbox = false
 
 end
 
 function love.draw()
   --scaling on screen
   love.graphics.scale(10,10)
+if gameState == "intro" then
+  drawIntro()
+end
   
+  
+if gameState == "game" then
   --bg
+  love.graphics.setColor(fade,fade,fade,1)
   if speed < 40 then
-  love.graphics.draw(bg[1])
-else
-  love.graphics.draw(bg[2])
+    love.graphics.draw(bg[1])
+  else
+    love.graphics.draw(bg[2])
+  end
+  love.graphics.setColor(1,1,1,1)
+
+  --bg object
+  if level == 2 then
+  drawObj(obj1)
   end
   
   --star
+  if level ~= 0 then
   if speed < 40 then
     love.graphics.setColor(1,1,1)
     drawStar()
@@ -132,10 +268,14 @@ else
     drawMob(allMob)
   end
 
-
+end
   --board
+  love.graphics.setColor(fade,fade,fade,1)
   love.graphics.draw(board[1])
+  love.graphics.draw(lifeMaxImg.img,lifeMaxImg.quad[lifeMax])
+  love.graphics.setColor(1,1,1,1)
   
+if level ~= 0 then
   if leftShot == true then
     love.graphics.draw(board[2])
   end
@@ -163,26 +303,53 @@ else
   drawShot(allLeftBotShot)
   drawShot(allCenterBotShot)
   drawShot(allRightBotShot)
+  end
 
+if engine == true then
   --reserve
   drawReserve(leftReserve,"left")
   drawReserve(rightReserve,"right")
 
+  --draw Speed
+  drawSpeed()
 
+  --draw life
+  drawLife()
+end
   --draw Hit
   drawHit(allHit)
   
   --draw Explosion
   drawExplosion(allExplosion)
   
+  if level ~= 0 then
   --draw Aim
   drawAim()
+  end
   
+  --drawSet
+  drawSet(set1)
+  drawSet(set2)
+  drawSetStat(set1)
+  
+  drawSetCursor()
+  
+  --draw Alert
+  if alert == true then
+  drawAlert("ALERT")
+  end
   --score
   
-  --test
-  love.graphics.print(aimPos,0,0,0,0.1,0.1)
-
+  --drawSetText
+  drawSetText()
+  end
+  
+  
+  --hitbox
+  if hitbox == true then
+  drawHitBox(allMob)
+  end
+  
 --[[
   --test 
   drawPosition(allLeftShot)
@@ -191,11 +358,32 @@ else
   drawMobPosition(allMob)
   
   love.graphics.print("push space to activate/desactivate mob hitbox",0,0,0,0.1,0.1)
+  
   ]]--
 end
 
 function love.update(dt)
 
+if gameState == "intro" then
+  playIntro(dt)
+end
+
+if gameState == "game" then
+  --set
+  moveSet(set1)
+  moveSet(set2)
+
+  --setCursor
+  if setUp == true then
+  cursorTimer = cursorTimer + dt * 5
+  if cursorTimer > 1 then
+    cursorTimer = cursorTimer - 1
+    setCursor.frameActive = 1
+  end
+  setCursor.frameActive = animator(setCursor.frameActive, 2, 1, cursorTimer)
+  end
+
+if level ~= 0 then
   --create star on timer
   timer = timer + dt*10
   if timer > 5 then
@@ -281,14 +469,47 @@ function love.update(dt)
     if shieldTimer > 0.2 then
       shieldTimer = shieldTimer - 0.2
     end
-    shieldFrame = animator(shieldFrame,5,0.2,1,shieldTimer)
+    shieldFrame = animator(shieldFrame,5,0.2,shieldTimer)
   else
     shieldActive = false
   end
+end
+  --txt alert warning
+  if alert == true then
+    if redUp == true then
+    rtext = rtext + 0.02
+    else
+    rtext = rtext - 0.02
+    end
+    if rtext >= 0.8 then
+    redUp = false
+    elseif rtext <= 0.1 then
+    redUp = true
+    end
+  end
+
+  --txt
+  if text == true then
+    if lightUp == true then
+    ltext = ltext + 0.02
+    else
+    ltext = ltext - 0.02
+    end
+    if ltext >= 0.8 then
+    lightUp = false
+    elseif ltext <= 0.1 then
+    lightUp = true
+    end
+  end
+
+if level ~= 0 then
+
+  --moving bg object
+    moveObj(obj1,dt)
 
   --timer for reserve
   if leftReserve < 5 then
-    leftReserveTimer = leftReserveTimer + dt * reload
+    leftReserveTimer = leftReserveTimer + dt *0.5* reload
     if leftReserveTimer > 1 then
       leftReserve = leftReserve + 1
       leftReserveTimer = leftReserveTimer - 1
@@ -350,7 +571,7 @@ function love.update(dt)
   if mobCreationTimer > 5 and mobCreation == false then
     mobCreationTimer = mobCreationTimer - 10
     randMob1 = math.random(5,25)
-    randMob2 = math.random(2,18)
+    randMob2 = math.random(2,13)
     randMobTimerDirection = math.random(1,5)
     randMobPower = math.random(1,10)
     if randMobPower < 4 then
@@ -359,10 +580,10 @@ function love.update(dt)
       elseif randMob1 > 17 then
         asteroid = 1
       elseif randMob1 > 13 and randMob1 < 17 then
-        asteroid = 2
+        asteroid = 3
       end
       mobCreation = true
-      table.insert(allMob, Mob:new({x=randMob1,y=randMob2,speed=3,life=1,direction=asteroid,frameActive=asteroid,scale=0.1,directionTimer=0,distance=0,directionChange=false,hit=false,xHitBox={1,1,1,2}, yHitBox={1,1,1,2},power=0}))
+      table.insert(allMob, Mob:new({x=randMob1,y=randMob2,speed=3,life=1,direction=asteroid,frameActive=asteroid,scale=0.1,directionTimer=0,distance=0,directionChange=false,hit=false,xHitBox={1,1,2,3}, yHitBox={1,1,2,3},power=0}))
       mobCreation = false
     elseif randMobPower > 4 and randMobPower < 8 then
       table.insert(allMob, Mob:new({x=randMob1,y=randMob2,speed=2,life=2,direction=randMobDirection,frameActive=randMobDirection,scale=0.1,directionTimer=0,distance=0,directionChange=true,hit=false,xHitBox={1,1,2,3}, yHitBox={1,1,2,3},power=1}))
@@ -461,35 +682,49 @@ function love.update(dt)
     aimTimer = aimTimer - 1
     aim.frameActive = 1
   end
-  aim.frameActive = animator(aim.frameActive, 2, 1, 1, aimTimer)
-  
+  aim.frameActive = animator(aim.frameActive, 2, 1, aimTimer)
 end
-
+end
+end
 function love.keypressed(key)
   --quit
   if key == "escape" then
     love.event.push("quit")
   end
   
-  --[[speed up (temp)
-  if key == "up" then
+  if gameState == "game" then
+  --set use
+  if key == "a" then
+    for _, set in pairs(allSet) do
+      if set.move1 == false then
+        set.move1 = true
+      else
+        set.move1 = false
+      end
+    end
+  end
+  
+  --speed up (temp)
+  if key == "kp+" then
     for _, star in pairs(allStar) do
       star.speed = star.speed + 1
     end
     speed = speed + 1
+    lifeMax = lifeMax + 1
   end
   
   --speed down (temp)
-  if key == "down" then
+  if key == "kp-" then
     for _, star in pairs(allStar) do
       star.speed = star.speed - 1
     end    
     speed = speed - 1
-  end]]--
+    lifeMax = lifeMax - 1
+  end
   
+  if level ~= 0 then
   --primary shot pos 1 left
   if key == "t" then
-    print(aimPos)
     if aimPos == 11 then
       if leftReserve > 0 then
         leftReserve = leftReserve - 1
@@ -581,27 +816,6 @@ function love.keypressed(key)
       end
     end
   end
-  
-  --primary shot pos 2 center (double)
-  if key == "kp2" and (leftReserve > 0 or rightReserve > 0) then
-    centerShotTimer = 0
-    centerShot = true
-      if leftReserve > 0 then
-      leftReserve = leftReserve - 1
-      table.insert(allCenterShot,Shot:new({x=4,y=15,speed=1,scale=1,hit=false}))
-      end
-      if rightReserve > 0 then
-      rightReserve = rightReserve - 1
-      table.insert(allCenterShot,Shot:new({x=25,y=15,speed=1,scale=1,hit=false}))
-      end
-  end
-  
-  --primary shot pos 3 right
-  if key == "kp3" and rightReserve > 0 then
-    rightReserve = rightReserve - 1
-    rightShotTimer = 0
-    rightShot = true
-    table.insert(allRightShot,Shot:new({x=27,y=15,speed=1,scale=1,hit=false}))
   end
   
   --hitbox debugmode
@@ -613,12 +827,38 @@ function love.keypressed(key)
     end
   end
 
+  --setCursor
+  if setUp == true then
+    if key == "left" then
+      if setCursor.pos > 1 then
+      setCursor.pos = setCursor.pos - 1
+      elseif setCursor.pos == 1 then
+      setCursor.pos = 5
+      end
+    end
+    if key == "right" then
+      if setCursor.pos == 5 then
+      setCursor.pos = 1
+      elseif setCursor.pos < 5 then
+      setCursor.pos = setCursor.pos + 1
+      end
+    end
+  end
   
+  --start engine
+  if key == "return" then
+    if engine == false then
+      engine = true
+    else
+      engine = false
+    end
+  end
+end
 end
 
 function drawStar()
   for _, star in pairs(allStar) do
-    love.graphics.rectangle("fill",star.x,star.y,star.scale,star.scale)
+    love.graphics.circle("fill",star.x,star.y,star.scale/2)
   end
 end
 
@@ -862,7 +1102,7 @@ function quadCreation(image, quadWidth, quadHeight)
   return quad
 end
 
-function animator(frameQuad, frameNumber, animationDuration, animationSpeed, animTimer)
+function animator(frameQuad, frameNumber, animationDuration, animTimer)
   local animatedFrame = frameQuad
   local timer = animTimer
   animatedFrame = math.floor(timer / animationDuration * frameNumber) + 1 --frame active en fonction du % avancé de l'animation (+1 for table index)
@@ -894,43 +1134,77 @@ function moveMob(allMob, deltaT)
   for _, mob in pairs(allMob) do
     if mob.distance < 3 then
       if mob.direction == 1 then
-        mob.y = mob.y + deltaT * mob.speed
+        if mob.y > 13 then
+          mob.y = mob.y - deltaT * mob.speed
+        else
+          mob.y = mob.y + deltaT * mob.speed
+        end
         mob.x = mob.x - deltaT * mob.speed
       elseif mob.direction == 2 then
-        mob.y = mob.y + deltaT * mob.speed
+        if mob.y > 13 then
+          mob.y = mob.y - deltaT * mob.speed
+        else
+          mob.y = mob.y + deltaT * mob.speed
+        end
       elseif mob.direction == 3 then
-        mob.y = mob.y + deltaT * mob.speed
+        if mob.y > 13 then
+          mob.y = mob.y - deltaT * mob.speed
+        else
+          mob.y = mob.y + deltaT * mob.speed
+        end
         mob.x = mob.x + deltaT * mob.speed
       end
     elseif mob.distance > 3 and mob.distance < 4 then
       if mob.direction == 1 then
-        mob.y = mob.y + deltaT * (1+mob.speed)
+        if mob.y > 13 then
+          mob.y = mob.y - deltaT * (1+mob.speed)
+        else
+          mob.y = mob.y + deltaT * (1+mob.speed)
+        end
         mob.x = mob.x - deltaT * (1+mob.speed)
       elseif mob.direction == 2 then
-        mob.y = mob.y + deltaT * (1+mob.speed)
+        if mob.y > 13 then
+          mob.y = mob.y - deltaT * (1+mob.speed)
+        else
+          mob.y = mob.y + deltaT * (1+mob.speed)
+        end
       elseif mob.direction == 3 then
-        mob.y = mob.y + deltaT * (1+mob.speed)
+        if mob.y > 13 then
+          mob.y = mob.y - deltaT * (1+mob.speed)
+        else
+          mob.y = mob.y + deltaT * (1+mob.speed)
+        end
         mob.x = mob.x + deltaT * (1+mob.speed)
       end
     elseif mob.distance > 4 and mob.distance < 6 then
       if mob.direction == 1 then
-        mob.y = mob.y + deltaT * (2+mob.speed)
+        if mob.y > 13 then
+          mob.y = mob.y + deltaT * (2+mob.speed)
+        else
+          mob.y = mob.y + deltaT * (2+mob.speed)
+        end
         mob.x = mob.x - deltaT * (3+mob.speed)
       elseif mob.direction == 2 then
-        mob.y = mob.y + deltaT * (2+mob.speed)
+        if mob.y > 13 then
+          mob.y = mob.y + deltaT * (2+mob.speed)
+        else
+          mob.y = mob.y + deltaT * (2+mob.speed)
+        end
       elseif mob.direction == 3 then
-        mob.y = mob.y + deltaT * (2+mob.speed)
+        if mob.y > 13 then
+          mob.y = mob.y + deltaT * (2+mob.speed)
+        else
+          mob.y = mob.y + deltaT * (2+mob.speed)
+        end
         mob.x = mob.x + deltaT * (3+mob.speed)
       end
     elseif mob.distance > 6 then
       if mob.direction == 1 then
-        mob.directionChange = false
         mob.y = mob.y - deltaT * (5+mob.speed)
         mob.x = mob.x - deltaT * (5+mob.speed)
       elseif mob.direction == 2 then
         mob.y = mob.y - deltaT * (5+mob.speed)
       elseif mob.direction == 3 then
-        mob.direction = false
         mob.y = mob.y - deltaT * (5+mob.speed)
         mob.x = mob.x + deltaT * (5+mob.speed)
       end
@@ -947,20 +1221,20 @@ function mobDestruction(allMob)
       if mob.life == 0 then
         table.insert(allExplosion,Explosion:new({x=mob.x,y=mob.y,scale=mob.scale,frameActive=1,explosionTimer=0}))
         table.remove(allMob, _)
-        speed = speed + 1
-        reload = reload + 1
-        score = score + 5
+        speed = speed + mob.power
+        score = score + mob.power
         if menaceUp < 10 then
           menaceUp = menaceUp + 1
         end
       elseif mob.y > 40  or mob.x > 50 or mob.x < -20 or mob.y < -10 then
         table.remove(allMob, _)
         if speed > 1 then
-          speed = speed - 1
+          speed = speed /2
         end
         if reload > 1 then
           reload = reload - 1
         end
+        life = life - 1
       end
     end
 end
@@ -1110,4 +1384,116 @@ function drawMobPosition(allMob)
 end
 function drawAim()
   love.graphics.draw(aim.img,aim.quad[aim.frameActive],aimX-2.5,aimY-2.5)
+end
+function drawHitBox(allMob)
+  for _, mob in pairs(allMob) do
+  love.graphics.setColor(1,0,0,0.3)
+    if mob.frameActive == 1 or mob.frameActive == 2 or mob.frameActive == 3 then
+    love.graphics.rectangle("fill",mob.x-mob.xHitBox[1]*mob.scale,mob.y-mob.yHitBox[1]*mob.scale,2*mob.xHitBox[1]*mob.scale,2*mob.yHitBox[1]*mob.scale)
+    elseif mob.frameActive == 4 or mob.frameActive == 5 or mob.frameActive == 6 then
+    love.graphics.rectangle("fill",mob.x-mob.xHitBox[2]*mob.scale,mob.y-mob.yHitBox[2]*mob.scale,2*mob.xHitBox[2]*mob.scale,2*mob.yHitBox[2]*mob.scale)
+    elseif mob.frameActive == 7 or mob.frameActive == 8 or mob.frameActive == 9 then
+    love.graphics.rectangle("fill",mob.x-mob.xHitBox[3]*mob.scale,mob.y-mob.yHitBox[3]*mob.scale,2*mob.xHitBox[3]*mob.scale,2*mob.yHitBox[3]*mob.scale)
+    elseif mob.frameActive == 10 or mob.frameActive == 11 or mob.frameActive == 12 then
+    love.graphics.rectangle("fill",mob.x-mob.xHitBox[4]*mob.scale,mob.y-mob.yHitBox[4]*mob.scale,2*mob.xHitBox[4]*mob.scale,2*mob.yHitBox[4]*mob.scale)
+    end
+  love.graphics.setColor(1,1,1,1)
+  end
+end
+function drawSpeed()
+  if speed < 40 then
+    for i=0,math.floor(speed/38*8),1 do
+      love.graphics.setColor(0,0.9,0)
+      love.graphics.rectangle("fill",10+i,17,1,1)
+      love.graphics.setColor(1,1,1)
+    end
+  else 
+    for i=0,8,1 do
+      love.graphics.setColor(0,0.9,0)
+      love.graphics.rectangle("fill",10+i,17,1,1)
+    end
+    love.graphics.rectangle("fill",18,16,1,1)
+    love.graphics.setColor(1,1,1)
+  end
+end
+function drawLife()
+  for i=1,life,1 do
+    love.graphics.setColor(0.8,0,0)
+    love.graphics.rectangle("fill",12+i,19,1,1)
+    love.graphics.setColor(1,1,1)
+  end
+end
+function drawObj(obj)
+  if speed < 40 then
+    if obj.scale < 1 then
+    love.graphics.draw(obj[1],obj.x-obj.x*obj.scale,obj.y-obj.y*obj.scale,0,obj.scale,obj.scale)
+    else
+    love.graphics.draw(obj[1],obj.x-obj[3],obj.y-obj[4],0,obj.scale,obj.scale)
+    end
+  else
+    if obj.scale < 1 then
+    love.graphics.draw(obj[2],obj.x-obj.x*obj.scale,obj.y-obj.y*obj.scale,0,obj.scale,obj.scale)
+    else
+    love.graphics.draw(obj[2],obj.x-obj[3],obj.y-obj[4],0,obj.scale,obj.scale)
+    end
+  end
+end
+function moveObj(obj,deltaT)
+  if obj.scale < 1 then
+  obj.scale = math.max(obj.scale + deltaT * speed/2000,0.1)
+  end
+end
+function drawAlert(text)
+  love.graphics.setColor(0.2+rtext,0,0)
+  love.graphics.print(text,2,2,0,0.5,0.5)
+  love.graphics.setColor(1,1,1)
+end
+function drawText(text)
+  love.graphics.setColor(0+ltext,0+ltext,0+ltext)
+  love.graphics.print(text,2,2,0,0.5,0.5)
+  love.graphics.setColor(1,1,1)
+end
+function drawSet(set)
+  love.graphics.draw(set.img,set.x,set.y)
+end
+function drawSetStat(set)
+  love.graphics.draw(setLifeMax.img,setLifeMax.quad[setLifeMax.frameActive],set.x,set.y)
+  love.graphics.draw(setShot.img,setShot.quad[setShot.frameActive],set.x,set.y)
+  love.graphics.draw(setSpeed.img,setSpeed.quad[setSpeed.frameActive],set.x,set.y)
+  love.graphics.draw(setMissile.img,setMissile.quad[setMissile.frameActive],set.x,set.y)
+  love.graphics.draw(setShield.img,setShield.quad[setShield.frameActive],set.x,set.y)
+end
+function moveSet(set)
+  if set.dir == "down" then
+    if set.move1 == true and set.y < set.yGo1 then
+      set.y = set.y + 1
+      set.move2 = true
+      setUp = true
+    end
+    if set.move2 == true and set.move1 == false and set.y > set.yGo2 then
+      set.y = set.y - 1
+    elseif set.y == set.yGo2 and set.move2 == true then
+      set.move2 = false
+      setUp = false
+    end
+  else
+    if set.move1 == true and set.y > set.yGo1 then
+      set.y = set.y - 1
+      set.move2 = true
+      setUp = true
+
+    end
+    if set.move2 == true and set.move1 == false and set.y < set.yGo2 then
+      set.y = set.y + 1
+    elseif set.y == set.yGo2 and set.move2 == true then
+      set.move2 = false
+      setUp = false
+    end
+  end
+end
+function drawSetCursor()
+  love.graphics.draw(setCursor.img,setCursor.quad[setCursor.frameActive],cursor.x[setCursor.pos]-2+set1.x,cursor.y[setCursor.pos]-2+set1.y)
+end
+function drawSetText()
+  love.graphics.print(cursor.text[setCursor.pos],3+set2.x,17+set2.y,0,0.3,0.3)
 end
