@@ -34,6 +34,8 @@ intro.sc6End = false
 
 intro.planeteX1 = 0
 intro.planeteX2 = 0
+intro.planeteS1 = 0
+intro.planeteS2 = 0
 intro.cityY = 0
 intro.ascY = 0
 intro.ascDoorX = 0
@@ -42,12 +44,14 @@ intro.padY = 0
 intro.padTextY = 0
 intro.text = 1
 intro.fade = 1
+intro.textScale = 0.15
 
 --init graph
   --scene
   sc0Bg = love.graphics.newImage("images/intro/intro0-0.png")
   sc0Obj1 = love.graphics.newImage("images/intro/intro0-1a.png")
   sc0Obj2 = love.graphics.newImage("images/intro/intro0-1b.png")
+  sc0Obj3 = love.graphics.newImage("images/intro/intro0-1c.png")
   
   sc1Bg = {}
     sc1Bg.img = love.graphics.newImage("images/intro/intro1-city.png")
@@ -84,20 +88,20 @@ intro.fade = 1
   sc5Obj2 = love.graphics.newImage("images/intro/intro5-1.png")
   sc5Obj3 = love.graphics.newImage("images/intro/intro5-1a.png")
 
-  sc6Bg1 = love.graphics.newImage("images/intro/intro6-0.png")
-  sc6Bg2 = love.graphics.newImage("images/intro/intro6-1.png")
+  sc6Bg0 = love.graphics.newImage("images/intro/intro6-0.png")
+  sc6Bg1 = love.graphics.newImage("images/intro/intro6-1.png")
 
 function playIntro(dt)
 -- déroulement
 intro.Timer = intro.Timer + dt
 
 --Déroulement : start
-  if intro.Timer > 3 and intro.start == false then
+  if intro.Timer > 1 and intro.start == false then
     intro.start = true
   end
   
 --Déroulement : sc0
-  if intro.Timer > 10 and intro.sc1 == false then
+  if intro.Timer > 8 and intro.sc1 == false then
     intro.startEnd = true
     intro.sc0End = true
     intro.sc1 = true
@@ -140,19 +144,14 @@ intro.Timer = intro.Timer + dt
     intro.sc6 = true
   end
   
-  if intro.Timer > 70 and intro.sc6 == true then
-    intro.sc6End = true
-  end
-
-  
+  --Déroulement : sc6 + End intro
   if intro.Timer > 75 and intro.sc6 == true then
-    intro.fade = intro.fade + 0.1
-  end
-  
-  if intro.fade <= -2 and intro.Timer > 76 then
+    intro.sc6End = true
     gameState = "game"
     love.graphics.setColor(1,1,1,1)
   end
+
+  
 
   
 --sc0
@@ -164,19 +163,23 @@ intro.Timer = intro.Timer + dt
     intro.planeteX1 = intro.planeteX1 - 0.005
     if intro.sc0 == true and intro.sc0End == false then
       intro.planeteX2 = intro.planeteX2 - 0.005
+      intro.planeteS1 = intro.planeteS1 + 0.001
+      intro.planeteS2 = intro.planeteS2 - 0.02
     end
   end
 
 --sc1
-  if intro.Timer > 11 and intro.sc1 == true and intro.sc1End == false then
+  if intro.Timer > 9 and intro.sc1 == true and intro.sc1End == false then
     if intro.Timer1 < 6 then
       intro.Timer1 = intro.Timer1 + dt *20
     end
     sc1Ship.frameActive = math.floor(intro.Timer1)+1
   end
-  if intro.Timer > 11 and intro.sc1 == true then
+  if intro.Timer > 9 and intro.sc1 == true then
     if intro.Timer0 < 4 then
       intro.Timer0 = intro.Timer0 + dt
+    elseif intro.Timer0 >= 4 and intro.Timer0 < 10 then
+      intro.Timer0 = intro.Timer0 + dt*3
     end
     sc1Bg.frameActive = math.floor(intro.Timer0)+1
   end
@@ -243,10 +246,6 @@ intro.Timer = intro.Timer + dt
     end
   end
 
-  --sc6
-if intro.text == 7 and intro.Timer > 60 then
-  intro.fade = intro.fade - 0.1
-end
 
 
 end
@@ -263,9 +262,12 @@ function drawIntro()
     if intro.sc0 == true and intro.sc0End == false then
       love.graphics.setColor(1,1,1,1)
       love.graphics.setColor(1,0.95,0.95,0.8)
-      love.graphics.rectangle("fill",-60+intro.planeteX2*-100,3*intro.planeteX2*-3+6,1,1)
-      love.graphics.rectangle("fill",180+intro.planeteX2*160+12,1.6*intro.planeteX2*2+12,1,1)
-      love.graphics.rectangle("fill",intro.planeteX2+12,6*intro.planeteX2*20+30,1,1)
+      love.graphics.rectangle("fill",-60+intro.planeteX2*-100,3*intro.planeteX2*-3+6,0.02+intro.planeteS1,0.02+intro.planeteS1)
+      love.graphics.draw(sc0Obj3,250+intro.planeteX2*200,250+intro.planeteX2*200,0,1,1)
+      love.graphics.rectangle("fill",250+intro.planeteX2*185,250+intro.planeteX2*185,0.8,0.8)
+      love.graphics.rectangle("fill",260+intro.planeteX2*175,260+intro.planeteX2*175,0.8,0.8)
+      love.graphics.rectangle("fill",260+intro.planeteX2*175,260+intro.planeteX2*175,0.8,0.8)
+      love.graphics.rectangle("fill",intro.planeteX2+12,6*intro.planeteX2*20+30,0.4-intro.planeteS1,0.4-intro.planeteS1)
       love.graphics.setColor(1,1,1,1)
     end
   end
@@ -274,7 +276,7 @@ function drawIntro()
   if intro.sc1 == true and intro.sc1End == false then
     if intro.Timer < 14.9 then
       love.graphics.draw(sc1Bg.img,sc1Bg.quad[sc1Bg.frameActive])
-      if intro.Timer > 11 and intro.Timer1 < 6 then
+      if intro.Timer > 9 and intro.Timer1 < 6 then
         love.graphics.draw(sc1Ship.img,sc1Ship.quad[sc1Ship.frameActive])
       end
     else
@@ -329,17 +331,18 @@ function drawIntro()
         love.graphics.draw(sc5Obj3,0,intro.padY+20)
       else
         love.graphics.draw(sc5Obj2,0,intro.padY+20)
+        love.graphics.draw(sc5Obj3,0,intro.padY+20)
       end
     end
     
-    if intro.sc5 == true then
+    if intro.sc5 == true and intro.sc5End == false then
       if intro.text == 1 then
         love.graphics.setColor(1,1,1,0.8)
-        love.graphics.print(".Silver Star.Corp@..1985",3,3,0,0.25,0.25)
-        love.graphics.print("..",3,5,0,0.25,0.25)
-        love.graphics.print("..",3,7,0,0.25,0.25)
-        love.graphics.print(".loading MSG..",3,9,0,0.25,0.25)
-        love.graphics.print("...!",3,11,0,0.25,0.25)
+        love.graphics.print(" Silver Star Corp@   1985",3,3,0,intro.textScale,intro.textScale)
+        love.graphics.print(" .",3,5,0,intro.textScale,intro.textScale)
+        love.graphics.print(" .",3,7,0,intro.textScale,intro.textScale)
+        love.graphics.print(" >/..loading MSG..",3,9,0,intro.textScale,intro.textScale)
+        love.graphics.print(" ..!",3,11,0,intro.textScale,intro.textScale)
         love.graphics.setColor(1,1,1,0.4)
         love.graphics.draw(sc5Obj3,0,intro.padY+20)
         love.graphics.setColor(1,1,1,1)
@@ -351,65 +354,65 @@ function drawIntro()
       end
       if intro.text == 2 then
         love.graphics.setColor(1,1,1,0.8)
-        love.graphics.print("..NEW MESSAGE.7.!",3,3,0,0.25,0.25)
-        love.graphics.print(".rent not paid\"5!\"@c.hahi",3,5,0,0.25,0.25)
-        love.graphics.print(".rent not paid\"4!\"@c.hahi",3,7,0,0.25,0.25)
-        love.graphics.print(".!.NO SUBJECT\"!\"@kl.lunar",3,9,0,0.25,0.25)
-        love.graphics.print(".rent not paid\"3!\"@c.hahi",3,11,0,0.25,0.25)
+        love.graphics.print(" NEW MESSAGE   (7!)-",3,3,0,intro.textScale,intro.textScale)
+        love.graphics.print(" rent not paid (5!)@c.hahi",3,5,0,intro.textScale,intro.textScale)
+        love.graphics.print(" rent not paid (4!)@c.hahi",3,7,0,intro.textScale,intro.textScale)
+        love.graphics.print(" --N. 421337 ---(!)@k.lunar",3,9,0,intro.textScale,intro.textScale)
+        love.graphics.print(" rent not paid (3!)@c.hahi",3,11,0,intro.textScale,intro.textScale)
         love.graphics.setColor(1,1,1,0.5)
-        love.graphics.rectangle("fill",3,5+intro.padTextY,24,2)
+        love.graphics.rectangle("fill",3,5+intro.padTextY,24.5,2)
         love.graphics.setColor(1,1,1,0.4)
         love.graphics.draw(sc5Obj3,0,intro.padY+20)
         love.graphics.setColor(1,1,1,1)
       end
       if intro.text == 3 then
         love.graphics.setColor(1,1,1,0.8)
-        love.graphics.print("..NEW MESSAGE.7.!",3,3,0,0.25,0.25)
-        love.graphics.print(".rent not paid\"4!\"@c.hahi",3,5,0,0.25,0.25)
-        love.graphics.print(".!.NO SUBJECT\"!\"@kl.lunar",3,7,0,0.25,0.25)
-        love.graphics.print(".rent not paid\"3!\"@c.hahi",3,9,0,0.25,0.25)
-        love.graphics.print(".!.a gift for you\"!\"@s.pam",3,11,0,0.25,0.25)
+        love.graphics.print(" NEW MESSAGE   (7!)-",3,3,0,intro.textScale,intro.textScale)
+        love.graphics.print(" rent not paid (4!)@c.hahi",3,5,0,intro.textScale,intro.textScale)
+        love.graphics.print(" --N. 421337 ---(!)@k.lunar",3,7,0,intro.textScale,intro.textScale)
+        love.graphics.print(" rent not paid (3!)@c.hahi",3,9,0,intro.textScale,intro.textScale)
+        love.graphics.print(" ! A gift for Y (!)@s.pam",3,11,0,intro.textScale,intro.textScale)
         love.graphics.setColor(1,1,1,0.5)
-        love.graphics.rectangle("fill",3,5+intro.padTextY,24,2)
+        love.graphics.rectangle("fill",3,5+intro.padTextY,24.5,2)
         love.graphics.setColor(1,1,1,0.4)
         love.graphics.draw(sc5Obj3,0,intro.padY+20)
         love.graphics.setColor(1,1,1,1)
       end
       if intro.text == 4 then
         love.graphics.setColor(1,1,1,0.8)
-        love.graphics.print("..NEW MESSAGE.7.!",3,3,0,0.25,0.25)
-        love.graphics.print(".!.NO SUBJECT\"!\"@kl.lunar",3,5,0,0.25,0.25)
-        love.graphics.print(".rent not paid\"3!\"@c.hahi",3,7,0,0.25,0.25)
-        love.graphics.print(".!.a gift for you\"!\"@s.pam",3,9,0,0.25,0.25)
-        love.graphics.print(".rent not paid\"2!\"@c.hahi",3,11,0,0.25,0.25)
+        love.graphics.print(" NEW MESSAGE   (7!)-",3,3,0,intro.textScale,intro.textScale)
+        love.graphics.print(" --N. 421337 ---(!)@k.lunar",3,5,0,intro.textScale,intro.textScale)
+        love.graphics.print(" rent not paid (3!)@c.hahi",3,7,0,intro.textScale,intro.textScale)
+        love.graphics.print(" ! A gift for Y (!)@s.pam",3,9,0,intro.textScale,intro.textScale)
+        love.graphics.print(" rent not paid (2!)@c.hahi",3,11,0,intro.textScale,intro.textScale)
         love.graphics.setColor(1,1,1,0.5)
-        love.graphics.rectangle("fill",3,5+intro.padTextY,24,2)
+        love.graphics.rectangle("fill",3,5+intro.padTextY,24.5,2)
         love.graphics.setColor(1,1,1,0.4)
         love.graphics.draw(sc5Obj3,0,intro.padY+20)
         love.graphics.setColor(1,1,1,1)
       end
       if intro.text == 5 then
         love.graphics.setColor(1,1,1,0.8)
-        love.graphics.print("..NEW MESSAGE.7.!",3,3,0,0.25,0.25)
-        love.graphics.print(".rent not paid\"4!\"@c.hahi",3,5,0,0.25,0.25)
-        love.graphics.print(".!.NO SUBJECT\"!\"@kl.lunar",3,7,0,0.25,0.25)
-        love.graphics.print(".rent not paid\"3!\"@c.hahi",3,9,0,0.25,0.25)
-        love.graphics.print(".!.a gift for you\"!\"@s.pam",3,11,0,0.25,0.25)
+        love.graphics.print(" NEW MESSAGE   (7!)-",3,3,0,intro.textScale,intro.textScale)
+        love.graphics.print(" rent not paid (4!)@c.hahi",3,5,0,intro.textScale,intro.textScale)
+        love.graphics.print(" --N. 421337 ---(!)@k.lunar",3,7,0,intro.textScale,intro.textScale)
+        love.graphics.print(" rent not paid (3!)@c.hahi",3,9,0,intro.textScale,intro.textScale)
+        love.graphics.print(" ! A gift for Y (!)@s.pam",3,11,0,intro.textScale,intro.textScale)
         love.graphics.setColor(1,1,1,0.5)
-        love.graphics.rectangle("fill",3,5+intro.padTextY,24,2)
+        love.graphics.rectangle("fill",3,5+intro.padTextY,24.5,2)
         love.graphics.setColor(1,1,1,0.4)
         love.graphics.draw(sc5Obj3,0,intro.padY+20)
         love.graphics.setColor(1,1,1,1)
       end
       if intro.text >= 6 then
         love.graphics.setColor(1,1,1,0.8)
-        love.graphics.print("..@kl.lunar.NO SUBJECT.!",3,3,0,0.25,0.25)
-        love.graphics.print(".Remember me ? MY debt",3,5,0,0.25,0.25)
-        love.graphics.print(".Your first Ship! Old",3,7,0,0.25,0.25)
-        love.graphics.print(".but upradable. Hg08",3,9,0,0.25,0.25)
-        love.graphics.print(".SEE YOU IN SECTOR 5.",3,11,0,0.25,0.25)
+        love.graphics.print(" @k.lunar : N° 421337 (!)",3,3,0,intro.textScale,intro.textScale)
+        love.graphics.print(" Hey! Remember me ? MY debt",3,5,0,intro.textScale,intro.textScale)
+        love.graphics.print(" Your first Ship! Old but,",3,7,0,intro.textScale,intro.textScale)
+        love.graphics.print(" can be upgrad. Go Hangar 8",3,9,0,intro.textScale,intro.textScale)
+        love.graphics.print(" And See ya in SECTOR 5",3,11,0,intro.textScale,intro.textScale)
         love.graphics.setColor(1,1,1,0.5)
-        love.graphics.rectangle("fill",3,3,24,2)
+        love.graphics.rectangle("fill",3,3,24.5,2)
         love.graphics.setColor(1,1,1,0.4)
         love.graphics.draw(sc5Obj3,0,intro.padY+20)
         love.graphics.setColor(1,1,1,1)
@@ -420,14 +423,14 @@ function drawIntro()
   
   --sc6
   if intro.sc6 == true and intro.sc6End == false then
-    if intro.Timer < 66 then
+    if intro.Timer >= 68 and intro.Timer < 72 then
+      love.graphics.draw(sc6Bg0)
+    elseif intro.Timer >= 72 then
       love.graphics.draw(sc6Bg1)
-    else
-      love.graphics.draw(sc6Bg2)
     end
   end
 
   
-love.graphics.print("@"..intro.Timer,0,0,0,0.1,0.1)
+--love.graphics.print("@"..intro.Timer,0,0,0,0.1,0.1)
 
 end

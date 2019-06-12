@@ -2,7 +2,7 @@ io.stdout:setvbuf('no')
 love.graphics.setDefaultFilter("nearest")
 
 love.window.setMode(300,200)
-love.window.setTitle("Proceptycide")
+love.window.setTitle("Wolcyde")
 
 function love.load(arg)
 if arg[#arg] == "-debug" then require("mobdebug").start() end
@@ -20,11 +20,11 @@ require("intro")
 rng = love.math.newRandomGenerator()
 
 --font for game
-  font = love.graphics.newImageFont("images/font.png",
+  font = love.graphics.newImageFont("images/XFont.png",
     " abcdefghijklmnopqrstuvwxyz"..
     "ABCDEFGHIJKLMNOPQRSTUVWXYZ"..
     "0123456789"..
-    ".\'?!,@")
+    ".:/\''!?,;()@+-><")
   love.graphics.setFont(font)
 
 
@@ -92,6 +92,17 @@ gameState = "intro"
 setUp = false
 cursorTimer = 0
 menuOn = false
+introTimer = 0
+introSkip1 = false
+introSkip2 = false
+introSkip3 = false
+control = true
+controlIntro = false
+controlTimer = 0
+setTitleTimer = 0
+setTitleUp = false
+menuName = "start"
+cursorPos = 1
 
 set1 = {}
   set1.x = 0
@@ -224,6 +235,13 @@ setCursor = {}
   setCursor.quad = quadCreation(setCursor.img,5,5)
   setCursor.frameActive = 1
   setCursor.pos = 1
+  
+setTitle = {}
+  setTitle.img = love.graphics.newImage("images/afix/shipText1.png")
+  setTitle.quad = quadCreation(setTitle.img)
+  setTitle.frameActive = 1
+  setTitle.x = 0
+  setTitle.y = -20
 
 --provisoire
 hitbox = false
@@ -235,6 +253,11 @@ function love.draw()
   love.graphics.scale(10,10)
 if gameState == "intro" then
   drawIntro()
+  if introSkip1 == true then
+    love.graphics.setColor(1,1,1,introTimer)
+    love.graphics.print("press Enter to skip intro",2,18,0,0.15,0.15)
+    love.graphics.setColor(1,1,1,1)
+  end
 end
   
   
@@ -306,15 +329,16 @@ if level ~= 0 then
   end
 
 if engine == true then
-  --reserve
+  --board light
   drawReserve(leftReserve,"left")
   drawReserve(rightReserve,"right")
-
-  --draw Speed
   drawSpeed()
-
-  --draw life
   drawLife()
+  
+  --setTitleMenu
+  drawSetTitleMenu()
+  drawMenu()
+  
 end
   --draw Hit
   drawHit(allHit)
@@ -360,15 +384,60 @@ end
   love.graphics.print("push space to activate/desactivate mob hitbox",0,0,0,0.1,0.1)
   
   ]]--
+  
+  --debug test affichage
+
 end
 
 function love.update(dt)
 
 if gameState == "intro" then
   playIntro(dt)
+  if introSkip1 == true then
+    if introTimer < 1 and introSkip3 == false then
+      introTimer = introTimer + dt
+      introSkip2 = true
+      if introTimer >= 1 then
+        introSkip3 = true
+      end
+    elseif introTimer > 0 and introSkip3 == true then
+      introTimer = introTimer - dt
+    end
+    if introTimer <= 0 then
+      introSkip1 = false
+      introSkip2 = false
+      introSkip3 = false
+    end
+  end
 end
 
 if gameState == "game" then
+  
+  --timer de control
+  if controlTimer <= 0.1 and controlIntro == false then
+    controlTimer = controlTimer + dt
+  end
+  if controlTimer > 0.1 and controlIntro == false then
+    controlIntro = true
+    setTitleUp = true
+    controlTimer = 0.1
+  end
+  
+  --setTitle
+  if engine == true then
+    setTitleTimer = setTitleTimer + dt
+    if setTitleTimer > 0.5 then
+      setTitleTimer = setTitleTimer - 0.5
+    end
+    setTitle.frameActive = animator(setTitle.frameActive, 6, 0.5, setTitleTimer)
+    if setTitle.y < 0 then
+      setTitle.y = setTitle.y + 0.1
+    end
+    if fade < 1 then
+      fade = fade + 0.001
+    end
+  end
+  
   --set
   moveSet(set1)
   moveSet(set2)
@@ -692,7 +761,30 @@ function love.keypressed(key)
     love.event.push("quit")
   end
   
+  if gameState == "intro" then
+    --skip intro
+    if key == "return" and introSkip1 == false and introSkip2 == false then
+      introSkip1 = true
+    end
+    if key == "return" and introSkip2 == true and introSkip1 == true then
+      gameState = "game"
+    end
+  end
+  
   if gameState == "game" then
+  --setMenuTitle
+  if key == "up" and setTitleUp == true then
+    if cursorPos > 1 then
+      cursorPos = cursorPos - 1
+    end
+  end
+  if key == "down" and setTitleUp == true then
+    if cursorPos < #menu[menuName] then
+      cursorPos = cursorPos + 1
+    end
+  end
+
+    
   --set use
   if key == "a" then
     for _, set in pairs(allSet) do
@@ -846,11 +938,11 @@ function love.keypressed(key)
   end
   
   --start engine
-  if key == "return" then
+  if key == "return" and control == true and controlIntro == true then
     if engine == false then
       engine = true
-    else
-      engine = false
+    --else
+      --engine = false
     end
   end
 end
@@ -1495,5 +1587,19 @@ function drawSetCursor()
   love.graphics.draw(setCursor.img,setCursor.quad[setCursor.frameActive],cursor.x[setCursor.pos]-2+set1.x,cursor.y[setCursor.pos]-2+set1.y)
 end
 function drawSetText()
-  love.graphics.print(cursor.text[setCursor.pos],3+set2.x,17+set2.y,0,0.3,0.3)
+  love.graphics.print(cursor.text[setCursor.pos],3+set2.x,17+set2.y,0,0.25,0.25)
+end
+function drawSetTitleMenu()
+  love.graphics.draw(setTitle.img,setTitle.quad[setTitle.frameActive],setTitle.x,setTitle.y)
+end
+function drawMenu()
+  love.graphics.setColor(1,1,1,fade-0.3)
+  if cursorPos > 1 then
+    love.graphics.print(menu[menuName][cursorPos-1],11,9,0,0.25,0.10)
+  end
+  love.graphics.print(menu[menuName][cursorPos],11,10,0,0.25,0.25)
+  if cursorPos < #menu[menuName] then
+    love.graphics.print(menu[menuName][cursorPos+1],11,13,0,0.25,0.10)
+  end
+  love.graphics.setColor(1,1,1,1)
 end
